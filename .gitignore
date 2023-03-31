@@ -1,2 +1,4 @@
 /.venv/
 start.sh
+base.db
+/__pycache__/
