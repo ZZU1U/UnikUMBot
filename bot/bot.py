@@ -5,12 +5,13 @@ import requests
 import rutimeparser as rt
 import datetime as dt
 from aiogram import Bot, Dispatcher, Router, types
+from aiogram.fsm.context import FSMContext
 from aiogram.client.telegram import TelegramAPIServer
 from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.filters import Command
 from aiogram.types import Message
 from bs4 import BeautifulSoup as bs
-
 
 class Database:
     def __init__(self, path):
@@ -138,11 +139,13 @@ async def command_start_handler(message: Message) -> None:
 
 
 @router.message(Command(commands=['settings']))
-async def command_settings_handler(message: Message) -> None:
+async def command_settings_handler(message: Message, state: FSMContext) -> None:
     if not database.about_user(message.chat.id)[0][1]:
-        await message.answer("Пиши")
+        await message.answer("Хорошо, напиши свою группу так, как указано на сайте уникума")
     else:
-        await message.answer(f"У тебя уже указана группа ({database.about_user(message.chat.id)[0][1]}), но если хочешь - меняй")
+        await message.answer(f"У тебя уже указана группа ({database.about_user(message.chat.id)[0][1]}), но если хочешь - меняй,")
+    
+
 
 
 @router.message(Command(commands=['tooday']))
