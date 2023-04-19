@@ -1,8 +1,12 @@
 from aiogram import Dispatcher
 import sqlite3
 
+
 class Database:
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
+        """
+        Initial database with users data
+        """
         self.connection = sqlite3.connect(path)
 
         self.cursor = self.connection.cursor()
@@ -16,15 +20,21 @@ class Database:
 
         self.connection.commit()
     
-    def about_user(self, user_id):
+    def about_user(self, user_id: str) -> list:
+        """
+        This function returns you user's data
+        """
         self.cursor.execute(f"SELECT user_id, party FROM users WHERE user_id = '{user_id}'")
         return self.cursor.fetchall()
     
-    def new_user(self, user_id, group=""):
+    def new_user(self, user_id: str, group: str = "") -> None:
+        """
+        This function creates new user without stated group by default
+        """
         self.cursor.execute(f"INSERT INTO users (user_id, party) VALUES ('{user_id}', '{group}')")
         self.connection.commit()
     
-    def update_info(self, user_id, **args):
+    def update_info(self, user_id: str, **args) -> None:
         for name, value in args.items():
             self.cursor.execute(f"UPDATE users SET {name} = '{value}' WHERE user_id = '{user_id}'")
         self.connection.commit()
