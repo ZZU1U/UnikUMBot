@@ -68,7 +68,7 @@ async def command_today_handler(message: Message) -> None:
     your_name = message.from_user.full_name
     if not database.about_user(message.chat.id)[0][1]:
         await message.answer(f"{your_name}, у тебя не выбран группа. 🧐\
-        \nВыбери ее с помощью /settings!")
+        \nВыбери ее с помощью /set!")
     else:
         pari_info = getLessons(database.about_user(message.chat.id)[0][1])
         if pari_info:
@@ -85,11 +85,11 @@ async def command_settings_handler(message: Message) -> None:
     your_name = message.from_user.full_name
     if not database.about_user(message.chat.id)[0][1]:
         await message.answer(f"{your_name}, у тебя не выбран группа. 🧐\
-                \nВыбери ее с помощью /settings!")
+                \nВыбери ее с помощью /set!")
     else:
         pari_info = getLessons(database.about_user(message.chat.id)[0][1], date='anywhen')
         if pari_info:
-            await message.answer(f'Ближайшая пара будет {pari_info}')
+            await message.answer(f'Ближайшая пара будет в {pari_info}')
         else:
             await message.answer(f'Мне очень жаль, {your_name}, но ближайший месяц у тебя нет пар по расписанию. 😴')
 

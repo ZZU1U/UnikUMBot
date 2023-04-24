@@ -3,6 +3,15 @@ import datetime as dt
 import rutimeparser as rt
 import requests
 
+WEEKDAYS = {
+    0: 'Воскресенье',
+    1: 'Понедельник',
+    2: 'Вторник',
+    3: 'Среда',
+    4: 'Четверг',
+    5: 'Пятница',
+    6: 'Суббота',
+}
 
 LESSONS_WEEKDAY = {
     1: ('8:30', '10:00'),
@@ -66,7 +75,7 @@ def getLessons(group: str, date: str = 'now') -> str:
         else:
             lessonsInfo = '\n'.join([f" - {lesson}: {LESSONS_WEEKEND[times[0]][0]}-{LESSONS_WEEKEND[times[-1]][1]}" for lesson, times in lessonsDict.items()])
 
-        message = f"{lineDate.strftime('%Y.%m.%d')} 📚\n{lessonsInfo}"
+        message = f"{WEEKDAYS[lineDate.weekday()]} - {lineDate.strftime('%d.%m.%Y')} 📚\n{lessonsInfo}"
 
     return message
 
@@ -83,3 +92,47 @@ def isGroup(group: str) -> bool:
     groups = filter(lambda y: '-' in y, map(lambda x: x.text, groups))
 
     return group in groups
+
+
+def getWeek(group: str) -> list:
+    url = "https://genius-school.kuzstu.ru/расписание/"
+
+    r = requests.get(url)
+    r.encoding = 'utf-8'
+
+    soup = bs(r.text, "html.parser")
+    groupsurl = soup.find_all('a', string=group)
+
+    url = groupsurl[0]['href']
+
+    r = requests.get(url)
+    r.encoding = 'utf-8'
+
+    soup = bs(r.text, "html.parser")
+    lines = soup.find_all('tr')
+    lessons = []
+
+    for line in lines:
+        soupTemp = bs(str(line), "html.parser")
+        spans = soupTemp.find_all('span', class_='s1')
+        lineDate = rt.parse(spans[0].text)
+        if lineDate != None:
+            if lineDate.month == dt.datetime.now().month and lineDate.day == dt.datetime.now().day:
+                lessons = [(i, j.replace('/n', '').replace('/xa0', '')) for i, j in enumerate([span.text for span in spans]) if j]
+                break
+    message = ""
+
+    if len(lessons) > 1:
+        lessonsDict = {}
+
+        for id, lesson in lessons[1:]:
+            lessonsDict[lesson] = lessonsDict.get(lesson, []) + [id]
+
+        if lineDate.weekday() < 5:
+            lessonsInfo = '\n'.join([f" - {lesson}: {LESSONS_WEEKDAY[times[0]][0]}-{LESSONS_WEEKDAY[times[-1]][1]}" for lesson, times in lessonsDict.items()])
+        else:
+            lessonsInfo = '\n'.join([f" - {lesson}: {LESSONS_WEEKEND[times[0]][0]}-{LESSONS_WEEKEND[times[-1]][1]}" for lesson, times in lessonsDict.items()])
+
+        message = f"{WEEKDAYS[lineDate.weekday()]} - {lineDate.strftime('%d.%m.%Y')} 📚\n{lessonsInfo}"
+
+    return message
