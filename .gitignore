@@ -143,5 +143,5 @@ cython_debug/
 
 # Specific files
 
-.db
-.json
+*.db
+*.json
