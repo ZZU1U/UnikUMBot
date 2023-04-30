@@ -141,3 +141,7 @@ cython_debug/
 .idea
 .vscode
 
+# Specific files
+
+.db
+.json

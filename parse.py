@@ -4,13 +4,13 @@ import rutimeparser as rt
 import requests
 
 WEEKDAYS = {
-    0: 'Воскресенье',
-    1: 'Понедельник',
-    2: 'Вторник',
-    3: 'Среда',
-    4: 'Четверг',
-    5: 'Пятница',
-    6: 'Суббота',
+    1: 'Воскресенье',
+    2: 'Понедельник',
+    3: 'Вторник',
+    4: 'Среда',
+    5: 'Четверг',
+    6: 'Пятница',
+    7: 'Суббота',
 }
 
 LESSONS_WEEKDAY = {
@@ -117,22 +117,9 @@ def getWeek(group: str) -> list:
         spans = soupTemp.find_all('span', class_='s1')
         lineDate = rt.parse(spans[0].text)
         if lineDate != None:
-            if lineDate.month == dt.datetime.now().month and lineDate.day == dt.datetime.now().day:
-                lessons = [(i, j.replace('/n', '').replace('/xa0', '')) for i, j in enumerate([span.text for span in spans]) if j]
-                break
-    message = ""
+            if lineDate.day - dt.datetime.now().day + 2 == lineDate.weekday() - dt.datetime.now().weekday():
+                lessons.append([(lineDate.weekday(),i, j.replace('/n', '').replace('/xa0', '')) for i, j in enumerate([span.text for span in spans]) if i and j])
 
-    if len(lessons) > 1:
-        lessonsDict = {}
+    return lessons
 
-        for id, lesson in lessons[1:]:
-            lessonsDict[lesson] = lessonsDict.get(lesson, []) + [id]
-
-        if lineDate.weekday() < 5:
-            lessonsInfo = '\n'.join([f" - {lesson}: {LESSONS_WEEKDAY[times[0]][0]}-{LESSONS_WEEKDAY[times[-1]][1]}" for lesson, times in lessonsDict.items()])
-        else:
-            lessonsInfo = '\n'.join([f" - {lesson}: {LESSONS_WEEKEND[times[0]][0]}-{LESSONS_WEEKEND[times[-1]][1]}" for lesson, times in lessonsDict.items()])
-
-        message = f"{WEEKDAYS[lineDate.weekday()]} - {lineDate.strftime('%d.%m.%Y')} 📚\n{lessonsInfo}"
-
-    return message
+print(getWeek('ИИ-82'))
