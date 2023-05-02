@@ -1,13 +1,13 @@
-from aiogram import types
 from aiogram.filters import Command
-from aiogram.types import Message
-from aiogram.filters import CommandObject
+from aiogram.types import Message, CallbackQuery
+from aiogram.filters import CommandObject, Text
+from keyboards import *
 from init import *
 from parsenew import *
 from decorate import *
 
 
-# A lot functions
+# A lot handlers
 
 
 @dp.message(Command(commands=["help"]))
@@ -29,7 +29,7 @@ async def command_start_handler(message: Message) -> None:
     """
     This handler receive messages with `/start` command and start talk with you
     """
-    your_name = message.from_user.full_name
+    your_name = message.from_user.first_name
     if not database.about_user(message.chat.id):
         database.new_user(message.chat.id)
         await message.answer(f"👋 Привет, это 'официальный' бот от уникума, что-бы ты легко отслеживал свое распианием, давай с тобой познакомимся!\
@@ -44,19 +44,38 @@ async def command_settings_handler(message: Message, command: CommandObject) -> 
     """
     This handler receive messages with `/set` command and let you choose your group
     """
+    your_name = message.from_user.first_name
     if not command.args:
-        await message.answer("При вызове команды укажи свою группу!\nНа пример так - /set ИИ-82.")
+        await message.answer(f"{your_name}, если хочешь указать группу, то напиши мне так: //set название_твоей_группы.\nКстати, список групп можешь узнать, написа /groups.")
     else:
-        if not database.about_user(message.chat.id)[0][1]:
-            await message.answer(f"Хорошо, теперь твоя группа - {command.args}. 🥳")
-            database.update_info(message.chat.id, party=command.args)
+        group = command.args
+        org = ''
+        if group in await get_groups('КузГТУ'):
+            org = 'КузГТУ'
+        elif group in await get_groups('УникУм'):
+            org = 'УникУм'
         else:
-            cur_grp = database.about_user(message.chat.id)[0][1]
-            if cur_grp == command.args:
-                await message.answer(f"Я знаю, что ты из этой группу, ты мне уже говорил. 😉")
+            await message.answer("Такой группы нет ни в УникУме, ни в КузГТУ, проверь еще раз.\n\
+                                 Если хочешь посмотреть список всех доступных групп, то напиши /groups.")
+        if org:
+            if not database.about_user(message.chat.id)[0][1]:
+                if group in await get_groups(org):
+                    await message.answer(f"Хорошо, {your_name}, теперь я знаю, где смотреть твоё расписание.")
+                    database.update_info(message.chat.id, party=group, organization=org)
             else:
-                await message.answer(f"У тебя уже была указана группа - {cur_grp}, но теперь ты перешел в {command.args}. 🥳")
-                database.update_info(message.chat.id, party=command.args)
+                cur_args = database.about_user(message.chat.id)[0]
+                # cur_args[0] is id...
+                cur_grp = cur_args[1]
+                cur_org = cur_args[2]
+                if cur_grp == group:
+                    await message.answer(f"Я знаю, что ты из {cur_grp}, ты мне уже говорил.")
+                else:
+                    if org == cur_org:
+                        await message.answer(f"Раньше ты учился в {cur_grp}, но теперь ты перешел в {group}.")
+                        database.update_info(message.chat.id, party=group)
+                    else:
+                        await message.answer(f"Ого, я думал ты просто группу поменять хотел, а ты еще дальше пошел...\nВот скажи, разве {org} лучше, чем {cur_org}?")
+                        database.update_info(message.chat.id, party=group, organization=org)
 
 
 @dp.message(Command(commands=['groups']))
@@ -64,13 +83,13 @@ async def command_groups_handler(message: Message, command: CommandObject) -> No
     """
     This handler receive messages with `/groups` command and gives you a list of groups for your organization
     """
-    your_name = message.from_user.full_name
+    your_name = message.from_user.first_name
     if not command.args:
-        await message.answer("При вызове команды укажи организацию!\nНа пример так - /groups УникУм или /groups КузГТУ.")
+        await message.answer("Окей, выбери название своей организации.", reply_markup=organizations_keyboard)
     elif command.args in ORGANIZATIONS:
-        await message.answer(await get_groups(command.args))
+        await message.answer(create_beautiful_list(await get_groups(command.args), command.args), parse_mode='Markdown')
     else:
-        await message.answer("Извини, {your_name}, я знаю лишь о группах КузГТУ и УникУм.")
+        await message.answer(f"Извини, {your_name}, я знаю лишь о группах КузГТУ и УникУм.")
 
 
 @dp.message(Command(commands=['today']))
@@ -78,15 +97,15 @@ async def command_today_schedule_handler(message: Message) -> None:
     """
     This handler receive messages with `/today` command and tell you your lessons for today or says you are free now
     """
-    your_name = message.from_user.full_name
-    if not database.about_user(message.chat.id)[0][1]:
+    your_name = message.from_user.first_name
+    if not (info := database.about_user(message.chat.id)[0])[1]:
         await message.answer(f"{your_name}, у тебя не выбран группа. 🧐\
         \nВыбери ее с помощью /set!")
     else:
-        pari_info = await get_lessons(database.about_user(message.chat.id)[0][1], 'tooday')
-
-        if pari_info:
-            await message.answer(create_beautiful_table(pari_info, 'tooday'), parse_mode='Markdown')
+        pari_info = await get_lessons(info[2], info[1], 'today')
+        print(pari_info)
+        if len(pari_info) > 1:
+            await message.answer(create_beautiful_table(pari_info, 'tooday', org=info[2]), parse_mode='Markdown')
         else:
             await message.answer("У тебя на сегодня нет пар! 😴")
 
@@ -96,14 +115,14 @@ async def command_coming_lessons_handler(message: Message) -> None:
     """
     This handler receive messages with `/coming` command and tell you about your closest lessons
     """
-    your_name = message.from_user.full_name
-    if not database.about_user(message.chat.id)[0][1]:
+    your_name = message.from_user.first_name
+    if not (info := database.about_user(message.chat.id)[0])[1]:
         await message.answer(f"{your_name}, у тебя не выбран группа. 🧐\
                 \nВыбери ее с помощью /set!")
     else:
-        pari_info = await get_lessons(database.about_user(message.chat.id)[0][1], 'coming')
-        if pari_info:
-            await message.answer(create_beautiful_table(pari_info, 'coming'), parse_mode='Markdown')
+        pari_info = await get_lessons(info[2], info[1], 'coming')
+        if len(pari_info) > 1:
+            await message.answer(create_beautiful_table(pari_info, 'coming', org=info[2]), parse_mode='Markdown')
         else:
             await message.answer(f'Мне очень жаль, {your_name}, но ближайший месяц у тебя нет пар по расписанию. 😴')
 
@@ -113,23 +132,41 @@ async def command_week_schedule_handler(message: Message) -> None:
     """
     This handler receive messages with `/week` command and tell you your week schedule
     """
-    your_name = message.from_user.full_name
-    if not database.about_user(message.chat.id)[0][1]:
+    your_name = message.from_user.first_name
+    if not (info := database.about_user(message.chat.id)[0])[1]:
         await message.answer(f"{your_name}, у тебя не выбран группа. 🧐\
                 \nВыбери ее с помощью /set!")
     else:
-        pari_info = await get_lessons(database.about_user(message.chat.id)[0][1], 'week')
+        pari_info = await get_lessons(info[2], info[1], 'week')
         if pari_info:
-            await message.answer(create_beautiful_table(pari_info, 'week'), parse_mode='Markdown')
+            await message.answer(create_beautiful_table(pari_info, 'week', org=info[2]), parse_mode='Markdown')
         else:
             await message.answer(f'Мне очень жаль, {your_name}, но ближайшую неделю у тебя нет пар по расписанию. 😴')
 
 
 @dp.message()
-async def default_handler(message: types.Message) -> None:
+async def default_handler(message: Message) -> None:
     """
     This handler receive all over messages
     """
     await message.answer(f'Прости, я тебя не понимаю. 😰\
     \nИспользуй команды, что-бы общаться со мной!\
     \nЧто-бы узнать больше о командах напиши /help.')
+
+# A little callbacks
+
+@dp.callback_query(Text("kuzgtu"))
+async def send_list_of_kuzgtu_groups(callback: CallbackQuery) -> None:
+    """
+    This callback function activates when you need list of kuzgtu groups
+    """
+    await callback.message.answer(create_beautiful_list(await get_groups('КузГТУ'), 'КузГТУ'), parse_mode='Markdown')
+    await callback.answer()
+
+@dp.callback_query(Text("unikum"))
+async def send_list_of_unikum_groups(callback: CallbackQuery) -> None:
+    """
+    This callback function activates when you need list of unikum groups
+    """
+    await callback.message.answer(create_beautiful_list(await get_groups('УникУм'), 'УникУм'), parse_mode='Markdown')
+    await callback.answer()

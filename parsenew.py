@@ -1,3 +1,4 @@
+import asyncio
 import httpx
 import rutimeparser as rt
 import datetime as dt
@@ -66,15 +67,13 @@ async def get_unikum_lessons(group: str, search_type: str) -> list:
 
     lessons = []
 
-    print(url)
-
     for line in lines:
         little_soup = bs(str(line), "html.parser")
         spans = little_soup.find_all('span', class_='s1')
         line_date = rt.parse(spans[0].text)
         if line_date != None:
             line_date = line_date.replace(year=dt.datetime.now().year)
-            if search_type == 'tooday':
+            if search_type == 'today':
                 if line_date == dt.datetime.now().date():
                     lessons = [(i, j.replace('/n', '').replace('/xa0', '')) for i, j in enumerate([span.text for span in spans]) if j]
                     break
@@ -112,26 +111,26 @@ async def get_kuzgtu_lessons(group: str, search_type: str) -> list:
         line_date = rt.parse(ps[0].text)
         if line_date != None:
             line_date = line_date.replace(year=dt.datetime.now().year)
-            if search_type == 'tooday':
+            if search_type == 'today':
                 if line_date == dt.datetime.now().date():
-                    lessons = [(i, j.replace('_', '').strip()) for i, j in enumerate([p.text for p in ps]) if j]
+                    lessons = [(i, j.replace('_', '').strip()) for i, j in enumerate([p.text for p in ps]) if j.replace('_', '').strip()]
                     break
             elif search_type == 'coming':
                 if line_date >= dt.datetime.now().date() and len(list(filter(lambda x: x.text.replace('_', '').strip(), ps))) > 1:
-                    lessons = [(i, j.replace('_', '').strip()) for i, j in enumerate([p.text for p in ps]) if j]
+                    lessons = [(i, j.replace('_', '').strip()) for i, j in enumerate([p.text for p in ps]) if j.replace('_', '').strip()]
                     break
             elif search_type == 'week':
                 if line_date.isocalendar().week == dt.datetime.now().isocalendar().week and len(list(filter(lambda x: x.text.replace('_', '').strip(), ps))) > 1:
-                    lessons.append([line_date] + [(i, j.replace('_', '').strip()) for i, j in enumerate([p.text for p in ps[1:]]) if j])
+                    lessons.append([line_date] + [(i, j.replace('_', '').strip()) for i, j in enumerate([p.text for p in ps[1:]]) if j.replace('_', '').strip()])
                 elif line_date.isocalendar().week > dt.datetime.now().isocalendar().week:
                     break
     
-    if search_type != 'week':
+    if search_type != 'week' and len(lessons):
         lessons[0] = line_date
 
     return lessons
 
-# Functions with organiztion choice (KuzGTU or UnikUm) for more comfort
+# Functions with organization choice (KuzGTU or UnikUm) for more comfort
 
 async def get_groups(organization: str) -> list:
     if organization == 'КузГТУ':
@@ -164,3 +163,10 @@ async def get_lessons(organization: str, group: str, search_type: str) -> list:
         return await get_unikum_lessons(group, search_type)
     
     return []
+
+
+async def main():
+    a = await get_lessons('КузГТУ', 'ТАт-202', 'coming')
+    print(a)
+
+asyncio.run(main())

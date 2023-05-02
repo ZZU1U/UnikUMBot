@@ -29,9 +29,17 @@ LESSONS_WEEKEND = {
     6: ('17:40', '19:10')
 }
 
+LESSONS_KUZGTU = {
+    1: ('9:00', '10:30'),
+    2: ('10:50', '12:20'),
+    3: ('13:20', '14:50'),
+    4: ('15:10', '16:40'),
+    5: ('17:00', '18:30'),
+    6: ('18:50', '20:20'),
+    7: ('20:30', '22:00')
+}
 
-
-def create_beautiful_table(lessons: str, schedule_type:str):
+def create_beautiful_table(lessons: str, schedule_type:str, org:str):
     if schedule_type == 'coming':
         lessons_dict = {}
 
@@ -39,13 +47,15 @@ def create_beautiful_table(lessons: str, schedule_type:str):
             lessons_dict[lesson] = lessons_dict.get(lesson, []) + [id]
 
         day = lessons[0]
-
-        if day.weekday() < 5:
-            lessonsInfo = '\n'.join([f" - {lesson}: {LESSONS_WEEKDAY[times[0]][0]}-{LESSONS_WEEKDAY[times[-1]][1]}" for lesson, times in lessons_dict.items()])
+        if org == 'УникУм':
+            if day.weekday() < 5:
+                lessonsInfo = '\n'.join([f" - {lesson}: **{LESSONS_WEEKDAY[times[0]][0]}-{LESSONS_WEEKDAY[times[-1]][1]}**" for lesson, times in lessons_dict.items()])
+            else:
+                lessonsInfo = '\n'.join([f" - {lesson}: *{LESSONS_WEEKEND[times[0]][0]}-{LESSONS_WEEKEND[times[-1]][1]}*" for lesson, times in lessons_dict.items()])
         else:
-            lessonsInfo = '\n'.join([f" - {lesson}: {LESSONS_WEEKEND[times[0]][0]}-{LESSONS_WEEKEND[times[-1]][1]}" for lesson, times in lessons_dict.items()])
+            lessonsInfo = '\n'.join([f" - {lesson}: *{LESSONS_KUZGTU[times[0]][0]}-{LESSONS_KUZGTU[times[-1]][1]}*" for lesson, times in lessons_dict.items()])
 
-        message = f"Ближайшая пара будет в *{WEEKDAYS[day.weekday()+1]} - {day.strftime('%d.%m.%Y')} 📚*\n{lessonsInfo}"
+        message = f"Ближайший рабочий день будет *{WEEKDAYS[day.weekday()+1]} - {day.strftime('%d.%m.%Y')} 📚*\n{lessonsInfo}"
 
 
     if schedule_type == 'tooday':
@@ -56,10 +66,13 @@ def create_beautiful_table(lessons: str, schedule_type:str):
 
         day = lessons[0]
 
-        if day.weekday() < 5:
-            lessonsInfo = '\n'.join([f" - {lesson}: {LESSONS_WEEKDAY[times[0]][0]}-{LESSONS_WEEKDAY[times[-1]][1]}" for lesson, times in lessons_dict.items()])
+        if org == 'УникУм':
+            if day.weekday() < 5:
+                lessonsInfo = '\n'.join([f" - {lesson}: *{LESSONS_WEEKDAY[times[0]][0]}-{LESSONS_WEEKDAY[times[-1]][1]}*" for lesson, times in lessons_dict.items()])
+            else:
+                lessonsInfo = '\n'.join([f" - {lesson}: *{LESSONS_WEEKEND[times[0]][0]}-{LESSONS_WEEKEND[times[-1]][1]}*" for lesson, times in lessons_dict.items()])
         else:
-            lessonsInfo = '\n'.join([f" - {lesson}: {LESSONS_WEEKEND[times[0]][0]}-{LESSONS_WEEKEND[times[-1]][1]}" for lesson, times in lessons_dict.items()])
+            lessonsInfo = '\n'.join([f" - {lesson}: *{LESSONS_KUZGTU[times[0]][0]}-{LESSONS_KUZGTU[times[-1]][1]}*" for lesson, times in lessons_dict.items()])
 
         message = f"*{WEEKDAYS[day.weekday()+1]} - {day.strftime('%d.%m.%Y')} 📚*\n{lessonsInfo}"
 
@@ -70,17 +83,17 @@ def create_beautiful_table(lessons: str, schedule_type:str):
         for days_lessons in lessons:
             lessons_dict = {}
 
-            pprint(days_lessons)
-
             for id, days_lesson in days_lessons[1:]:
                 lessons_dict[days_lesson] = lessons_dict.get(days_lesson, []) + [id]
 
             day = days_lessons[0]
-
-            if day.weekday() < 5:
-                lessons_info = '\n'.join([f" - {lesson}: {LESSONS_WEEKDAY[times[0]][0]}-{LESSONS_WEEKDAY[times[-1]][1]}" for lesson, times in lessons_dict.items()])
+            if org == 'УникУм':
+                if day.weekday() < 5:
+                    lessons_info = '\n'.join([f" - {lesson}: *{LESSONS_WEEKDAY[times[0]][0]}-{LESSONS_WEEKDAY[times[-1]][1]}*" for lesson, times in lessons_dict.items()])
+                else:
+                    lessons_info = '\n'.join([f" - {lesson}: *{LESSONS_WEEKEND[times[0]][0]}-{LESSONS_WEEKEND[times[-1]][1]}*" for lesson, times in lessons_dict.items()])
             else:
-                lessons_info = '\n'.join([f" - {lesson}: {LESSONS_WEEKEND[times[0]][0]}-{LESSONS_WEEKEND[times[-1]][1]}" for lesson, times in lessons_dict.items()])
+                lessons_info = '\n'.join([f" - {lesson}: *{LESSONS_KUZGTU[times[0]][0]}-{LESSONS_KUZGTU[times[-1]][1]}*" for lesson, times in lessons_dict.items()])
 
             message += f"*{WEEKDAYS[day.weekday()+1]} - {day.strftime('%d.%m.%Y')} 📚*\n{lessons_info}\n\n"
 
