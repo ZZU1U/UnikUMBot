@@ -3,6 +3,9 @@ import datetime as dt
 import rutimeparser as rt
 import requests
 
+# Модуль requests не присутствует в requirments.txt
+# Для работы необходимо его командой - pip install requests
+
 WEEKDAYS = {
     1: 'Воскресенье',
     2: 'Понедельник',

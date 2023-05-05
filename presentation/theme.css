@@ -1,0 +1,28 @@
+/* @theme unikum */
+
+@import 'uncover';
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+h1 {
+  font-family: 'Comfortaa';
+  color: rgb(7, 121, 191);
+}
+
+h2 {
+  font-family: 'Comfortaa';
+  color: rgb(7, 121, 191);
+  position: absolute;
+  top: 10%; left: 7%;
+}
+
+section {
+  width: 1920px;
+  height: 1080px;
+  font-family: 'Open sans';
+  font-size: 42px;
+}

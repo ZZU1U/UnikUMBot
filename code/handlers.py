@@ -2,7 +2,7 @@ from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandObject, Text
 from keyboards import *
-from init import *
+from initialize import *
 from parsenew import *
 from decorate import *
 
@@ -18,10 +18,12 @@ async def command_help_handler(message: Message) -> None:
     await message.answer("Привет, я телеграм-бот, который подскажет тебе твое распиание в уникуме!\
     \nСписок команд:\
     \n/start - Поздароваться\
-    \n/set - Указать группу\
     \n/help - Вызов справки\
+    \n/set - Указать группу\
+    \n/groups - Список всех доступных групп\
     \n/today - Расписание на сегодня\
-    \n/coming - Ближайшие занятия")
+    \n/coming - Ближайшие занятия\
+    \n/week - Рассписание на текущюю неделю")
 
 
 @dp.message(Command(commands=['start']))
@@ -83,13 +85,8 @@ async def command_groups_handler(message: Message, command: CommandObject) -> No
     """
     This handler receive messages with `/groups` command and gives you a list of groups for your organization
     """
-    your_name = message.from_user.first_name
-    if not command.args:
-        await message.answer("Окей, выбери название своей организации.", reply_markup=organizations_keyboard)
-    elif command.args in ORGANIZATIONS:
-        await message.answer(create_beautiful_list(await get_groups(command.args), command.args), parse_mode='Markdown')
-    else:
-        await message.answer(f"Извини, {your_name}, я знаю лишь о группах КузГТУ и УникУм.")
+
+    await message.answer("Окей, выбери название своей организации.", reply_markup=organizations_keyboard)
 
 
 @dp.message(Command(commands=['today']))

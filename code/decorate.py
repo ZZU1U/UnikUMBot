@@ -1,6 +1,3 @@
-import datetime as dt
-from pprint import pprint
-
 WEEKDAYS = {
     1: 'Понедельник',
     2: 'Вторник',
@@ -39,7 +36,7 @@ LESSONS_KUZGTU = {
     7: ('20:30', '22:00')
 }
 
-def create_beautiful_table(lessons: str, schedule_type:str, org:str):
+def create_beautiful_table(lessons: str, schedule_type:str, org:str) -> str:
     if schedule_type == 'coming':
         lessons_dict = {}
 
@@ -100,6 +97,6 @@ def create_beautiful_table(lessons: str, schedule_type:str, org:str):
 
     return message
 
-def create_beautiful_list(some_list: list, organization: str):
+def create_beautiful_list(some_list: list, organization: str) -> str:
     message = f"*Вот список групп в {organization}:*\n{'  '.join(some_list)}"
     return message

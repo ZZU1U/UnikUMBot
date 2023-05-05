@@ -163,10 +163,3 @@ async def get_lessons(organization: str, group: str, search_type: str) -> list:
         return await get_unikum_lessons(group, search_type)
     
     return []
-
-
-async def main():
-    a = await get_lessons('КузГТУ', 'ТАт-202', 'coming')
-    print(a)
-
-asyncio.run(main())

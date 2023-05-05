@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from init import *
+from initialize import *
 from handlers import *
 
 async def main() -> None:
