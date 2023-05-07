@@ -124,5 +124,3 @@ def getWeek(group: str) -> list:
                 lessons.append([(lineDate.weekday(),i, j.replace('/n', '').replace('/xa0', '')) for i, j in enumerate([span.text for span in spans]) if i and j])
 
     return lessons
-
-print(getWeek('ИИ-82'))
