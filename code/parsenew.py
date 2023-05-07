@@ -162,5 +162,3 @@ async def get_lessons(organization: str, group: str, search_type: str) -> list:
         return await get_unikum_lessons(group, search_type)
     
     return []
-
-

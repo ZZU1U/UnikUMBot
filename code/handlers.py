@@ -100,7 +100,6 @@ async def command_today_schedule_handler(message: Message) -> None:
         \nВыбери ее с помощью /set!")
     else:
         pari_info = await get_lessons(info[2], info[1], 'today')
-        print(pari_info)
         if len(pari_info) > 1:
             await message.answer(create_beautiful_table(pari_info, 'tooday', org=info[2]), parse_mode='Markdown')
         else:
