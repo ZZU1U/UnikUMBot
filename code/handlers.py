@@ -48,7 +48,7 @@ async def command_settings_handler(message: Message, command: CommandObject) -> 
     """
     your_name = message.from_user.first_name
     if not command.args:
-        await message.answer(f"{your_name}, если хочешь указать группу, то напиши мне так: //set название_твоей_группы.\nКстати, список групп можешь узнать, написа /groups.")
+        await message.answer(f"{your_name}, если хочешь указать группу, то напиши мне так: /set название_твоей_группы.\nКстати, список групп можешь узнать, написа /groups.")
     else:
         group = command.args
         org = ''

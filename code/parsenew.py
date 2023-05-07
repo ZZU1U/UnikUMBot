@@ -1,4 +1,3 @@
-import asyncio
 import httpx
 import rutimeparser as rt
 import datetime as dt
@@ -29,7 +28,7 @@ async def get_list_of_kuzgtu_groups() -> list:
 
     groups_urls = soup.find_all('a')
 
-    return [i.text for i in groups_urls if i.text]
+    return [i.text for i in groups_urls if i.text and '-' in i.text]
 
 
 async def get_unikum_url(group: str) -> str:
@@ -163,3 +162,5 @@ async def get_lessons(organization: str, group: str, search_type: str) -> list:
         return await get_unikum_lessons(group, search_type)
     
     return []
+
+

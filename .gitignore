@@ -143,4 +143,5 @@ cython_debug/
 
 # Specific files
 
-/secrets
+secrets.json
+database.db
