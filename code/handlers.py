@@ -76,7 +76,7 @@ async def command_settings_handler(message: Message, command: CommandObject) -> 
                         await message.answer(f"Раньше ты учился в {cur_grp}, но теперь ты перешел в {group}.")
                         database.update_info(message.chat.id, party=group)
                     else:
-                        await message.answer(f"Ого, я думал ты просто группу поменять хотел, а ты еще дальше пошел...\nВот скажи, разве {org} лучше, чем {cur_org}?")
+                        await message.answer(f"Теперь ты учишся в {group} при {org}")
                         database.update_info(message.chat.id, party=group, organization=org)
 
 

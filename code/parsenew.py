@@ -82,7 +82,7 @@ async def get_unikum_lessons(group: str, search_type: str) -> list:
                     break
             elif search_type == 'week':
                 if line_date.isocalendar().week == dt.datetime.now().isocalendar().week and len(list(filter(lambda x: x.text.replace('\n', '').replace('\xa0', ''), spans))) > 1:
-                    lessons.append([line_date] + [(i, j.replace('/n', '').replace('/xa0', '')) for i, j in enumerate([span.text for span in spans[1:]]) if j])
+                    lessons.append([line_date] + [(i+1, j.replace('/n', '').replace('/xa0', '')) for i, j in enumerate([span.text for span in spans[1:]]) if j])
                 elif line_date.isocalendar().week > dt.datetime.now().isocalendar().week:
                     break
     
@@ -120,7 +120,7 @@ async def get_kuzgtu_lessons(group: str, search_type: str) -> list:
                     break
             elif search_type == 'week':
                 if line_date.isocalendar().week == dt.datetime.now().isocalendar().week and len(list(filter(lambda x: x.text.replace('_', '').strip(), ps))) > 1:
-                    lessons.append([line_date] + [(i, j.replace('_', '').strip()) for i, j in enumerate([p.text for p in ps[1:]]) if j.replace('_', '').strip()])
+                    lessons.append([line_date] + [(i+1, j.replace('_', '').strip()) for i, j in enumerate([p.text for p in ps[1:]]) if j.replace('_', '').strip()])
                 elif line_date.isocalendar().week > dt.datetime.now().isocalendar().week:
                     break
     

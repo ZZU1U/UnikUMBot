@@ -79,6 +79,7 @@ def create_beautiful_table(lessons: str, schedule_type:str, org:str) -> str:
 
         for days_lessons in lessons:
             lessons_dict = {}
+            
 
             for id, days_lesson in days_lessons[1:]:
                 lessons_dict[days_lesson] = lessons_dict.get(days_lesson, []) + [id]
